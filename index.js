@@ -30,41 +30,36 @@ app.post('/object', (req, res) => {
         timestamp: req.body.timestamp ? req.body.timestamp : Date.now()
     }
     logger.log(JSON.stringify(object))
-    dbhandler.saveData(object);
-    // objects.push(object);
-    res.send(object);
+    dbhandler.saveData(object)
+        .then((result) => {
+            logger.log(result);
+            res.send(result);
+        })
+        .catch((err) => {
+            logger.log(err.message);
+        })
 });
-
-// app.post('/object', upload.single('value'), function (req, res, next) {
-//     // req.file is the `avatar` file
-//     // req.body will hold the text fields, if there were any
-// })
 
 app.get('/object/mykey', (req, res) => {
     logger.log("^^ req.query : ", req.query )
     if(req.query && req.query.timestamp) {
         let object = dbhandler.getData(false, req.query.timestamp)
-            .then((object) => {res.send(object)});
-        // var n = objects.length;
-        // var object = null;
-        // while(n != 0) {
-        //     console.log(parseInt(req.query.timestamp) + " >= " + objects[n-1].timestamp)
-        //     if( parseInt(req.query.timestamp) >= objects[n-1].timestamp ) {
-        //         object = objects[n-1]
-        //         break;
-        //     }
-        //     n--;
-        // }
-        // res.send(object);
+            .then((object) => {res.send({value: object.value})})
+            .catch((err) => {
+                logger.log(err.message);
+            })
     }
     else {
         let object = dbhandler.getData(true, null)
-            .then((object) => {res.send(object)});
-        // res.send(object);
+            .then((object) => {res.send({value: object.value})})
+            .catch((err) => {
+                logger.log(err.message);
+            })
     }
 })
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Listening in port ${port}...`)
 })
 
+module.exports = server;

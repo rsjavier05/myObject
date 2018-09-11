@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 const Logger = require('./logger');
 const logger = new Logger();
+const config = require('config');
 
 let Object, object;
 
 class DBHandler {
     
     init() {
-        mongoose.connect('mongodb://localhost/myobject')
-            .then(() => console.log('Connected to MongoDB...'))
+        mongoose.connect(config.get('db'))
+            .then(() => console.log(`Connected to ${config.get('db')}...`))
             .catch(err => console.error('Could not connect to MongoDB...', err))
     }
 
@@ -28,18 +29,31 @@ class DBHandler {
             value: _object.value,
             timestamp: _object.timestamp
         })
-        const result = await object.save();
-        logger.log(result);
+        try {
+            const result = await object.save();
+            logger.log(result);
+            return result;
+        }
+        catch(err) {
+            throw new Error('Error in saving data : ' + err.message);
+        }
     }
 
     async getData(latest, timestamp) {
         let condition = timestamp ? { timestamp : { $lte : timestamp}} : {}
-        const object = await Object
-            .find(condition)
-            .limit(1)
-            .sort({timestamp : -1})
-        logger.log(object);
-        return object[0];
+
+        try {
+            const object = await Object
+                .find(condition)
+                .limit(1)
+                .sort({timestamp : -1})
+            logger.log(object);
+            return object[0];
+        }
+
+        catch(err) {
+            throw new Error('Error in getting data : ' + err.message);
+        }
     }
 }
 
