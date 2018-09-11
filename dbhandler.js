@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Logger = require('./logger');
+const logger = new Logger();
 
 let Object, object;
 
@@ -27,7 +29,7 @@ class DBHandler {
             timestamp: _object.timestamp
         })
         const result = await object.save();
-        console.log(result);
+        logger.log(result);
     }
 
     async getData(latest, timestamp) {
@@ -36,7 +38,7 @@ class DBHandler {
             .find(condition)
             .limit(1)
             .sort({timestamp : -1})
-        console.log(object);
+        logger.log(object);
         return object[0];
     }
 }

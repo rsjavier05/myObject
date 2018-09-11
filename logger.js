@@ -1,6 +1,9 @@
+const env = process.env.NODE_ENV || 'development';
 class Logger {
     log(message) {
-        console.log(message);
+        if(env === "development") {
+            console.log(message);
+        }
     }
 }
 
